@@ -1,0 +1,16 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_SignExtdM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Signed extend 'dat'(data) according to the 'width'.
+//   It is a Single Line Macro.
+// Modification History:
+//   Date   |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 19-10-14 | Wenheng Ma |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`define ZionBasicCircuitLib_SignExtdM(dat,width) ({{(width-$bits(dat)+1){dat[$high(dat)]}},dat[$high(dat)-1:$low(dat)]})

@@ -1,0 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_Bin2OhM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : 
+//   START - Indicate the starting point of the data. For example, if START is 1, iDat==0 will not have a 
+//           Onehot signal. That is, the oDat[0] represents iDat==1. The default value is 0.
+//   STEP  - Indicate the step between two onehot signals. The default value is 1.
+// Description :
+//   Binary to Onehot decoder.
+//   If the width of oDat is overflow, it has a Parameter Error.
+// Modification History:
+//   Date   |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 19-10-17 | Wenheng Ma |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`define ZionBasicCircuitLib_Bin2OhM(iDat,oDat,START=0,STEP=1) \
+`ifdef CHECK_MACRO_ERR                                        \
+      if(2**$bits(iDat) < ($bits(oDat)*SETP)+START) begin     \
+        $error("Parameter Error: Onehot width mismatch!!");   \
+        `ifdef CHECK_ERR_EXIT                                 \
+          $finish;                                            \
+        `endif                                                \
+      end                                                     \
+    `endif                                                    \
+    foreach(oDat[i]) begin                                    \
+      oDat[i] = (iDat == (i*STEP + START));                   \
+    end

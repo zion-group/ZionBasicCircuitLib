@@ -1,0 +1,41 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright(C) Zion Team. Open source License: MIT.
+// ALL RIGHT RESERVED
+// File name   : ZionBasicCircuitLib.vm
+// Author      : Zion Team
+// Date        : 2019-10-14
+// Version     : 0.1
+// Description :
+//     This is a basic circuit macro library. All circuit macro is designed in this file.
+// Modification History:
+//   Date   |   Author    |   Version   |   Change Description
+//======================================================================================================================
+// 19-10-14 |  Zion Team  |     0.1     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`Use_ZionBasicCircuitLib(Bc)
+
+//section: Single Line Macro +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  All single line macro is design in this section.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_MaskM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Data mask. Detect the width of 'dat'(data) and mask it according to the 'en'(enable) signal.
+//   It is a Single Line Macro.
+// Modification History:
+//   Date   |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 19-10-14 | Wenheng Ma |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`define ZionBasicCircuitLib_MaskM(en,dat) ({$bits(dat){en}} & dat)
+
+//endsection: Single Line Macro ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+`Unuse_ZionBasicCircuitLib(Bc)
