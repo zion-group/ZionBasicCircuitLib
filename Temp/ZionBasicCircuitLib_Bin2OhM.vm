@@ -9,22 +9,11 @@
 //   STEP  - Indicate the step between two onehot signals. The default value is 1.
 // Description :
 //   Binary to Onehot decoder.
-//   If the width of oDat is overflow, it has a Parameter Error.
+//   It is not a normal single line function. Designer must use it like a void function.
 // Modification History:
 //   Date   |   Author   |   Version   |   Change Description
 //======================================================================================================================
 // 19-10-17 | Wenheng Ma |     1.0     |   Original Version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`define ZionBasicCircuitLib_Bin2OhM(iDat,oDat,START=0,STEP=1) \
-`ifdef CHECK_MACRO_ERR                                        \
-      if(2**$bits(iDat) < ($bits(oDat)*SETP)+START) begin     \
-        $error("Parameter Error: Onehot width mismatch!!");   \
-        `ifdef CHECK_ERR_EXIT                                 \
-          $finish;                                            \
-        `endif                                                \
-      end                                                     \
-    `endif                                                    \
-    foreach(oDat[i]) begin                                    \
-      oDat[i] = (iDat == (i*STEP + START));                   \
-    end
+`define ZionBasicCircuitLib_Bin2OhM(iDat,oDat,START=0,STEP=1) foreach(oDat[i]) oDat[i] = (iDat == (i*STEP + START))

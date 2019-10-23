@@ -4,7 +4,7 @@
 // File name   : ZionBasicCircuitLib.sv
 // Author      : Zion Team
 // Date        : 2019-06-20
-// Version     : 0.1
+// Version     : 1.0
 // Parameter   :
 //   WIDTH_IN  - width of input data,input data is range from 0 to 2**WIDTH_IN-1
 //   WIDTH_OUT - width of output data,output data is range from 0 to 2**WIDTH_OUT-1
@@ -15,7 +15,7 @@
 // Modification History:
 //   Date   |   Author    |   Version   |   Change Description
 //======================================================================================================================
-// 07-24-19 |  Zion Team  |     0.1     |   Original Version
+// 07-24-19 |  Zion Team  |     1.0     |   Original Version
 // 10-22-19 |   Yudi Gao  |     2.0     |   Change Reset Model
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
