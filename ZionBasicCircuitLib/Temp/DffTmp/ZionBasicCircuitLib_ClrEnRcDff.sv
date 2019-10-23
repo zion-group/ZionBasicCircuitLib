@@ -5,12 +5,18 @@
 // Author      : Zion Team
 // Date        : 2019-06-20
 // Version     : 0.1
+// Parameter   :
+//   WIDTH_IN  - width of input data,input data is range from 0 to 2**WIDTH_IN-1
+//   WIDTH_OUT - width of output data,output data is range from 0 to 2**WIDTH_OUT-1
+//   INI_DATA  - initial value for reset and clear;can be any value,if not injected, default value is '0
+//   RST_CFG   - type of reset,meaning that whether asynchronous or synchronous reset and reset active low or high 
 // Description :
 //     This is a basic circuit element library. All packages, interfaces and modules is designed in this file.
 // Modification History:
 //   Date   |   Author    |   Version   |   Change Description
 //======================================================================================================================
-// 19-07-24 |  Zion Team  |     0.1     |   Original Version
+// 07-24-19 |  Zion Team  |     0.1     |   Original Version
+// 10-22-19 |   Yudi Gao  |     2.0     |   Change Reset Model
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //section: DFF +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

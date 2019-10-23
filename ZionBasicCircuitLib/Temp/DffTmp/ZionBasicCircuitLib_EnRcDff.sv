@@ -23,7 +23,8 @@
 // Modification History:
 //   Date   |   Author   |   Version   |   Change Description
 //======================================================================================================================
-// 19-07-24 | Wenheng Ma |     1.0     |   Original Version
+// 07-24-19 | Wenheng Ma |     1.0     |   Original Version
+// 10-22-19 |  Yudi Gao  |     2.0     |   Change Reset Model
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 `ifndef Disable_ZionBasicCircuitLib_EnRcDff
 `ifdef ZionBasicCircuitLib_EnRcDff
