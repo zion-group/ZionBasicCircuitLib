@@ -48,8 +48,7 @@ module ZionBasicCircuitLib_ClrEnRanDff_tb;
         end else if (oDat != out) begin
           $error("oDat fault, %0d!=%0d", oDat,out);
           $finish;
-          end 
-        end
+        end 
       end
     end
   end
@@ -63,10 +62,10 @@ module ZionBasicCircuitLib_ClrEnRanDff_tb;
   end 
   
   `BcClrEnRanDff  (U_ClrEnRanDff,
-                    clk,rst,iEn,iClr,iDat, // input
-                    oDat,                  // output
-                    INI_DATA               // parameter
+                     clk,rst,iEn,iClr,iDat, // input
+                     oDat,                  // output
+                     INI_DATA               // parameter
                   );
 
-  `Unuse_ZionBasicCircuitLib(Bc)
+`Unuse_ZionBasicCircuitLib(Bc)
 endmodule : ZionBasicCircuitLib_ClrEnRanDff_tb

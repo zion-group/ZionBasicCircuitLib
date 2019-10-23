@@ -107,9 +107,9 @@ module ZionBasicCircuitLib_EnRcDff
             if(iEn)
               oDat <= iDat;
           end
-  end //`gen_else begin: Dff_ParamErr
-  //   $error("Parameter Error: RcDff RST_CFG set error!!");
-  // end
+  end `gen_else begin: Dff_ParamErr
+    $error("Parameter Error: RcDff RST_CFG set error!!");
+  end
   //end
   // parameter check
   initial begin
