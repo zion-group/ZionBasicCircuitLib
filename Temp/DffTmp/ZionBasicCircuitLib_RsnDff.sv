@@ -4,13 +4,18 @@
 // Author      : Wenheng Ma
 // Date        : 2019-07-24
 // Version     : 1.0
+// Parameter   : 
+//   WIDTH_IN  - width of input data,input data is range from 0 to 2**WIDTH_IN-1
+//   WIDTH_OUT - width of output data,output data is range from 0 to 2**WIDTH_OUT-1
+//   INI_DATA  - initial value for reset and clear;can be any value,if not injected, default value is '0
 // Description :
 //   DFF with reset. Reset is synchronous and active low. 
 //   The Reset value is indicated by the INI_DATA. 
 // Modification History:
 //   Date   |   Author   |   Version   |   Change Description
 //======================================================================================================================
-// 19-07-24 | Wenheng Ma |     1.0     |   Original Version
+// 07-24-19 | Wenheng Ma |     1.0     |   Original Version
+// 10-24-19 | Xiyao Gao  |     2.0     |   Add an end and parameter
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 `ifndef Disable_ZionBasicCircuitLib_RsnDff
 `ifdef ZionBasicCircuitLib_RsnDff
@@ -43,7 +48,7 @@ module ZionBasicCircuitLib_RsnDff
       oDat <= INI_DATA;
     else begin
       oDat <= iDat;
-
+    end
 
   // parameter check
   initial begin
