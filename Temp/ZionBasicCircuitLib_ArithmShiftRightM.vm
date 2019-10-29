@@ -6,11 +6,17 @@
 // Parameter   : None
 // Description :
 //   Arithmetic shift right.
-//   It is a Single Line Macro.
 // Modification History:
-//   Date   |   Author   |   Version   |   Change Description
+//    Date    |   Author   |   Version   |   Change Description
 //======================================================================================================================
-// 19-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`define ZionBasicCircuitLib_ArithmShiftRightM(dat,shift) ($bits(dat)'({{$bits(dat){dat[$high(dat)]}},dat} >> shift))
+`ifndef Disable_ZionBasicCircuitLib_ArithmShiftRightM
+  `ifdef ZionBasicCircuitLib_ArithmShiftRightM
+    `__DefErr__(ZionBasicCircuitLib_ArithmShiftRightM)
+  `else
+    `define ZionBasicCircuitLib_ArithmShiftRightM(dat,shift) ($bits(dat)'({{$bits(dat){dat[$high(dat)]}},dat} >> shift))
+  `endif
+`endif

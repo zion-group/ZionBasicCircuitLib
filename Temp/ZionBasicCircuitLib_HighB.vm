@@ -1,12 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Macro name  : ZionBasicCircuitLib_SignExtdM
+// Macro name  : ZionBasicCircuitLib_HighB
 // Author      : Wenheng Ma
-// Date        : 2019-10-14
+// Date        : 2019-10-27
 // Version     : 1.0
-// Parameter   : 
-//   WIDTH     - width of input data(dat)
+// Parameter   : None
 // Description :
-//   Signed extend 'dat'(data) according to the 'WIDTH'.
+//   Get highest bit of input data.
 // Modification History:
 //    Date    |   Author   |   Version   |   Change Description
 //======================================================================================================================
@@ -14,10 +13,10 @@
 // 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`ifndef Disable_ZionBasicCircuitLib_SignExtdM
-  `ifdef ZionBasicCircuitLib_SignExtdM
-    `__DefErr__(ZionBasicCircuitLib_SignExtdM)
+`ifndef Disable_ZionBasicCircuitLib_HighB
+  `ifdef ZionBasicCircuitLib_HighB
+    `__DefErr__(ZionBasicCircuitLib_HighB)
   `else
-    `define ZionBasicCircuitLib_SignExtdM(dat,WIDTH) ({{(WIDTH-$bits(dat)+1){dat[$high(dat)]}},dat[$high(dat)-1:$low(dat)]})
+    `define ZionBasicCircuitLib_HighB(dat) (dat[$high(dat)])
   `endif
 `endif

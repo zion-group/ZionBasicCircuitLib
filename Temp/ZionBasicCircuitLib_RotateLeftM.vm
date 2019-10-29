@@ -6,12 +6,17 @@
 // Parameter   : None
 // Description :
 //   Rotate left.
-//   It is a Single Line Macro.
 // Modification History:
-//   Date   |   Author   |   Version   |   Change Description
+//    Date    |   Author   |   Version   |   Change Description
 //======================================================================================================================
-// 19-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`define ZionBasicCircuitLib_RotateLeftM(dat,shift) ({<<{$bits(dat)'({{<<{dat}},{<<{dat}}} >> shift)}})
-
+`ifndef Disable_ZionBasicCircuitLib_RotateLeftM
+  `ifdef ZionBasicCircuitLib_RotateLeftM
+    `__DefErr__(ZionBasicCircuitLib_RotateLeftM)
+  `else
+    `define ZionBasicCircuitLib_RotateLeftM(dat,shift) ({1<<{$bits(dat)'({{1<<{dat}},{1<<{dat}}} >> shift)}})
+  `endif
+`endif

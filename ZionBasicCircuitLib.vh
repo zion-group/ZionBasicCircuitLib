@@ -38,29 +38,40 @@
     `define ImportName``DefName `ZionBasicCircuitLib_``DefName            \
   `endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-`define Use_ZionBasicCircuitLib(ImportName)                 \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRanDff)   \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRapDff)   \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRsnDff)   \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRcDff)    \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRspDff)   \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRanDff)     \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRapDff)     \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRcDff)      \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRsnDff)     \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRspDff)     \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, Dff)           \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, EnDff)         \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRanDff)      \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRapDff)      \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRcDff)       \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRsnDff)      \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRspDff)      \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, RanDff)        \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, RapDff)        \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, RcDff)         \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, RsnDff)        \
-  `ZionBasicCircuitLib_ModuleDef(ImportName, RspDff)          
+`define Use_ZionBasicCircuitLib(ImportName)                      \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRanDff)        \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRapDff)        \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRsnDff)        \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRcDff)         \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrEnRspDff)        \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRanDff)          \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRapDff)          \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRcDff)           \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRsnDff)          \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, ClrRspDff)          \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, Dff)                \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, EnDff)              \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRanDff)           \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRapDff)           \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRcDff)            \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRsnDff)           \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, EnRspDff)           \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, RanDff)             \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, RapDff)             \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, RcDff)              \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, RsnDff)             \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, RspDff)             \
+  `ZionBasicCircuitLib_MacroDef(ImportName, AbsM)                \
+  `ZionBasicCircuitLib_MacroDef(ImportName, AddSubdM)            \
+  `ZionBasicCircuitLib_MacroDef(ImportName, ArithmShiftRightM)   \
+  `ZionBasicCircuitLib_MacroDef(ImportName, Bin2OhM)             \
+  `ZionBasicCircuitLib_MacroDef(ImportName, HighB)               \
+  `ZionBasicCircuitLib_MacroDef(ImportName, OpppsateNumM)        \
+  `ZionBasicCircuitLib_MacroDef(ImportName, RotateLeftM)         \
+  `ZionBasicCircuitLib_MacroDef(ImportName, RotateRightM)        \
+  `ZionBasicCircuitLib_MacroDef(ImportName, SignExtdM)           \
+  `ZionBasicCircuitLib_MacroDef(ImportName, ZeroExtdM)
+
 
 `define Unuse_ZionBasicCircuitLib(ImportName) \
   `undef ImportName``ClrEnRanDff              \
@@ -84,7 +95,17 @@
   `undef ImportName``RapDff                   \
   `undef ImportName``RcDff                    \
   `undef ImportName``RsnDff                   \
-  `undef ImportName``RspDff        
+  `undef ImportName``RspDff                   \
+  `undef ImportName``AbsM                     \
+  `undef ImportName``AddSubdM                 \
+  `undef ImportName``ArithmShiftRightM        \
+  `undef ImportName``Bin2OhM                  \
+  `undef ImportName``HighB                    \
+  `undef ImportName``OpppsateNumM             \
+  `undef ImportName``RotateLeftM              \
+  `undef ImportName``RotateRightM             \
+  `undef ImportName``SignExtdM                \
+  `undef ImportName``ZeroExtdM
   
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

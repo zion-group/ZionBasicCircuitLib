@@ -3,15 +3,21 @@
 // Author      : Wenheng Ma
 // Date        : 2019-10-14
 // Version     : 1.0
-// Parameter   : None
+// Parameter   : 
+//   WIDTH     - width of input data(dat)
 // Description :
-//   Zero extend 'dat'(data) according to the 'width'.
-//   It is a Single Line Macro.
+//   Zero extend 'dat'(data) according to the 'WIDTH'.
 // Modification History:
-//   Date   |   Author   |   Version   |   Change Description
+//    Date    |   Author   |   Version   |   Change Description
 //======================================================================================================================
-// 19-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`define ZionBasicCircuitLib_ZeroExtdM(dat,width) ({{(width-$bits(dat)){1'b0}},dat})
-
+`ifndef Disable_ZionBasicCircuitLib_ZeroExtdM
+  `ifdef ZionBasicCircuitLib_ZeroExtdM
+    `__DefErr__(ZionBasicCircuitLib_ZeroExtdM)
+  `else
+    `define ZionBasicCircuitLib_ZeroExtdM(dat,WIDTH) ({{(WIDTH-$bits(dat)){1'b0}},dat})
+  `endif
+`endif
