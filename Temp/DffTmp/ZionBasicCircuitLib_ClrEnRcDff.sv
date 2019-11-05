@@ -4,7 +4,7 @@
 // File name   : ZionBasicCircuitLib.sv
 // Author      : Zion Team
 // Date        : 2019-06-20
-// Version     : 1.0
+// Version     : 2.0
 // Parameter   :
 //   WIDTH_IN  - width of input data,input data is range from 0 to 2**WIDTH_IN-1
 //   WIDTH_OUT - width of output data,output data is range from 0 to 2**WIDTH_OUT-1
@@ -13,10 +13,10 @@
 // Description :
 //     This is a basic circuit element library. All packages, interfaces and modules is designed in this file.
 // Modification History:
-//   Date   |   Author    |   Version   |   Change Description
+//    Date    |   Author    |   Version   |   Change Description
 //======================================================================================================================
-// 07-24-19 |  Zion Team  |     1.0     |   Original Version
-// 10-22-19 |   Yudi Gao  |     2.0     |   Change Reset Model
+// 2019-07-24 |  Zion Team  |     1.0     |   Original Version
+// 2019-10-22 |   Yudi Gao  |     2.0     |   Change Reset Model
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //section: DFF +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -89,8 +89,20 @@ module ZionBasicCircuitLib_ClrEnRcDff
   input        [WIDTH_IN -1:0] iDat,
   output logic [WIDTH_OUT-1:0] oDat
 );
-  //initial begin
-  `gen_if(RST_CFG==0) begin: Dff_AsynNeg
+
+  `ifdef RST_CFG_ASYN_LOW
+    localparam RST_MACRO_CFG = 0;
+  `elsif RST_CFG_ASYN_HIGH
+    localparam RST_MACRO_CFG = 1;
+  `elsif RST_CFG_SYN_LOW
+    localparam RST_MACRO_CFG = 2;
+  `elsif RST_CFG_SYN_HIGH
+    localparam RST_MACRO_CFG = 3;
+  `endif
+  
+
+
+  `gen_if((RST_CFG==0)|| (RST_MACRO_CFG==0) ) begin: Dff_AsynNeg//
     always_ff@(posedge clk, negedge rst) // DFF with asynchronous reset, and the reset signal is active low.
       if(!rst)
         oDat <= INI_DATA;
@@ -100,7 +112,7 @@ module ZionBasicCircuitLib_ClrEnRcDff
         else if(iEn)
           oDat <= iDat;
       end
-  end `gen_elif(RST_CFG==1) begin: Dff_AsynPos
+  end `gen_elif((RST_CFG==1)|| (RST_MACRO_CFG==1) ) begin: Dff_AsynPos//
     always_ff@(posedge clk, posedge rst) // DFF with asynchronous reset, and the reset signal is active high.
       if(rst)
         oDat <= INI_DATA;
@@ -110,7 +122,7 @@ module ZionBasicCircuitLib_ClrEnRcDff
         else if(iEn)
           oDat <= iDat;
       end
-  end `gen_elif(RST_CFG==2) begin: Dff_SynNeg
+  end `gen_elif((RST_CFG==2)|| (RST_MACRO_CFG==2) ) begin: Dff_SynNeg//
     always_ff@(posedge clk) // DFF with  synchronous reset, and the reset signal is active low.
       if(!rst)
         oDat <= INI_DATA;
@@ -120,8 +132,8 @@ module ZionBasicCircuitLib_ClrEnRcDff
         else if(iEn)
           oDat <= iDat;
       end
-  end `gen_elif(RST_CFG==3) begin: Dff_SynPos
-    always_ff@(posedge clk) // DFF with synchronous reset, and the reset signal is active high.
+  end `gen_elif((RST_CFG==3)|| (RST_MACRO_CFG==3)) begin: Dff_SynPos// 
+    always_ff@(posedge clk) begin// DFF with synchronous reset, and the reset signal is active high.
       if(rst)
         oDat <= INI_DATA;
       else begin
@@ -129,33 +141,9 @@ module ZionBasicCircuitLib_ClrEnRcDff
           oDat <= INI_DATA;
         else if(iEn)
           oDat <= iDat;
-      end
-  end `gen_elif(RST_CFG==4) begin: Dff_SynPos
-    `ifdef FPGA_PROJECT
-      always_ff@(posedge clk) // In FPGA project, the DFF is recommanded to work with synchronous reset.
-    `elsif ASIC_PROJECT
-      always_ff@(posedge clk, negedge rst) // In ASIC project, the DFF is recommanded to work with asynchronous reset.
-    `else
-      always_ff@(posedge clk, negedge rst) // DFF work with asynchronous reset by default.
-    `endif
-        `ifdef FPGA_PROJECT 
-          if(rst)   // In FPGA project, the reset is recommanded to active high.
-        `elsif ASIC_PROJECT 
-          if(!rst)  // In FPGA project, the reset is recommanded to active low.
-        `else
-          if(!rst)  // By default, the reset is active low.
-        `endif
-            oDat <= INI_DATA;
-          else begin
-            if(iClr)
-              oDat <= INI_DATA;
-            else if(iEn)
-              oDat <= iDat;
-          end
-  end //`gen_else begin: Dff_ParamErr
-  //   $error("Parameter Error: RcDff RST_CFG set error!!");
-  // end
-  //end
+      end 
+    end 
+  end
   // parameter check
   initial begin
     if(WIDTH_IN != WIDTH_OUT) begin

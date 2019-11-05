@@ -61,16 +61,27 @@
   `ZionBasicCircuitLib_ModuleDef(ImportName, RcDff)              \
   `ZionBasicCircuitLib_ModuleDef(ImportName, RsnDff)             \
   `ZionBasicCircuitLib_ModuleDef(ImportName, RspDff)             \
-  `ZionBasicCircuitLib_MacroDef(ImportName, AbsM)                \
-  `ZionBasicCircuitLib_MacroDef(ImportName, AddSubdM)            \
-  `ZionBasicCircuitLib_MacroDef(ImportName, ArithmShiftRightM)   \
-  `ZionBasicCircuitLib_MacroDef(ImportName, Bin2OhM)             \
-  `ZionBasicCircuitLib_MacroDef(ImportName, HighB)               \
-  `ZionBasicCircuitLib_MacroDef(ImportName, OpppsateNumM)        \
-  `ZionBasicCircuitLib_MacroDef(ImportName, RotateLeftM)         \
-  `ZionBasicCircuitLib_MacroDef(ImportName, RotateRightM)        \
-  `ZionBasicCircuitLib_MacroDef(ImportName, SignExtdM)           \
-  `ZionBasicCircuitLib_MacroDef(ImportName, ZeroExtdM)
+  `ZionBasicCircuitLib_ModuleDef(ImportName, Bin2Oh)             \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, Oh2Bin)             \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, OnehotDef)          \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, BitMaskGen)         \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, BitRead)            \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, BitWrite)           \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, Abs)                \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, OpppsateNum)        \
+  `ZionBasicCircuitLib_ModuleDef(ImportName, AddSub)             \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  OnehotDefM)         \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  AbsM)               \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  AddSubdM)           \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  ArithmShiftRightM)  \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  Bin2OhM)            \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  Oh2BinM)            \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  HighB)              \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  OpppsateNumM)       \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  RotateLeftM)        \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  RotateRightM)       \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  SignExtdM)          \
+  `ZionBasicCircuitLib_MacroDef(ImportName,  ZeroExtdM)
 
 
 `define Unuse_ZionBasicCircuitLib(ImportName) \
@@ -96,12 +107,23 @@
   `undef ImportName``RcDff                    \
   `undef ImportName``RsnDff                   \
   `undef ImportName``RspDff                   \
+  `undef ImportName``Bin2Oh                   \
+  `undef ImportName``Oh2Bin                   \
+  `undef ImportName``OnehotDef                \
+  `undef ImportName``BitMaskGen               \
+  `undef ImportName``BitRead                  \
+  `undef ImportName``BitWrite                 \
+  `undef ImportName``OnehotDefM               \
   `undef ImportName``AbsM                     \
+  `undef ImportName``Abs                      \
   `undef ImportName``AddSubdM                 \
+  `undef ImportName``AddSub                   \
   `undef ImportName``ArithmShiftRightM        \
   `undef ImportName``Bin2OhM                  \
+  `undef ImportName``Oh2BinM                  \
   `undef ImportName``HighB                    \
   `undef ImportName``OpppsateNumM             \
+  `undef ImportName``OpppsateNum              \
   `undef ImportName``RotateLeftM              \
   `undef ImportName``RotateRightM             \
   `undef ImportName``SignExtdM                \

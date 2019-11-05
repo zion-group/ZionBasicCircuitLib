@@ -1,0 +1,37 @@
+  
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name : ZionBasicCircuitLib_Oh2BinM
+// Author      : Yudi Gao
+// Date        : 2019-11-2
+// Version     : 1.0
+// Parameter   : 
+//   START - Indicate the starting point of the data. For example, if START is 1, iDat==0 will not have a 
+//           Onehot signal. That is, the oDat[0] represents iDat==1. The default value is 0.
+//   STEP  - Indicate the step between two onehot signals. The default value is 1.
+// Description :
+//   Onehot to Binary decoder.
+// Modification History:
+//    Date    |   Author   |   Version   |   CiDate Description
+//======================================================================================================================
+// 2019-10-28 | Yudi Gao |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_Oh2BinM
+  `ifdef ZionBasicCircuitLib_Oh2BinM
+    `__DefErr__(ZionBasicCircuitLib_Oh2BinM)
+  `else
+    `define ZionBasicCircuitLib_Oh2BinM(iDat,oDat,START_MT=0,STEP_MT=1) \
+  logic                    flag;                                        \
+  logic [2*($bits(iDat)-1):0] temp;                                     \
+  logic [   $bits(oDat)-1:0] addr [2*($bits(iDat)-1):0];                \
+  foreach(iDat[i]) begin                                                \
+    assign temp[i] = iDat[i];                                           \
+    assign addr[i] = i;                                                 \
+  end                                                                   \
+  foreach(iDat[i])begin                                                 \
+    assign temp[$bits(iDat)+i] = temp[2*i] | temp[2*i+1];               \
+    assign addr[$bits(iDat)+i] = temp[2*i] ? addr[2*i] : temp[2*i+1] ? addr[2*i+1] : addr[2*i]; \
+  end                                                                                           \
+  assign flag = temp[2*($bits(iDat)-1)] ? 1 : 0;                                                \
+  assign oDat = flag ? addr[2*($bits(iDat)-1)] : '0;                                            \
+  `endif           
+`endif

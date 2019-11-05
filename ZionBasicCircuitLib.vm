@@ -36,6 +36,277 @@
 
 `define ZionBasicCircuitLib_MaskM(en,dat) ({$bits(dat){en}} & dat)
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_AbsM
+// Author      : Wenheng Ma
+// Date        : 2019-10-16
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Get absolute value.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_AbsM
+  `ifdef ZionBasicCircuitLib_AbsM
+    `__DefErr__(ZionBasicCircuitLib_AbsM)
+  `else
+    `define ZionBasicCircuitLib_AbsM(dat) ((dat[$high(dat)])? (~dat+1'b1) : dat)
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_AddSubM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Addition and subtraction computing. One adder is reused in both of the computation.
+//   If 'addEn' is 1, calculate the addition. If 'subEn' is 1, calculate the subtraction. 
+//   If 'addEn' and 'subEn' are both 0, result is 0. If they are both 0, result is undefined.
+//   Both of 'addEn' and 'subEn' must be 1 bit signal,. Otherwise, the result is undefined.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-17 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_AddSubdM
+  `ifdef ZionBasicCircuitLib_AddSubdM
+    `__DefErr__(ZionBasicCircuitLib_AddSubdM)
+  `else
+    `define ZionBasicCircuitLib_AddSubdM(addEn,subEn,datA,datB) (({$bits(datA){addEn & subEn}} & datA) + (({$bits(datB){subEn}} & datB)|({$bits(datB){addEn}} & datB)) + subEn)
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_ArithmShiftRightM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Arithmetic shift right.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_ArithmShiftRightM
+  `ifdef ZionBasicCircuitLib_ArithmShiftRightM
+    `__DefErr__(ZionBasicCircuitLib_ArithmShiftRightM)
+  `else
+    `define ZionBasicCircuitLib_ArithmShiftRightM(dat,shift) ($bits(dat)'({{$bits(dat){dat[$high(dat)]}},dat} >> shift))
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_Bin2OhM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   :  
+//   START - Indicate the starting point of the data. For example, if START is 1, iDat==0 will not have a 
+//           Onehot signal. That is, the oDat[0] represents iDat==1. The default value is 0.
+//   STEP  - Indicate the step between two onehot signals. The default value is 1.
+// Description :
+//   Binary to Onehot decoder.
+//   It is not a normal single line function. Designer must use it like a void function.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-17 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_Bin2OhM
+  `ifdef ZionBasicCircuitLib_Bin2OhM
+    `__DefErr__(ZionBasicCircuitLib_Bin2OhM)
+  `else
+    `define ZionBasicCircuitLib_Bin2OhM(iDat,oDat,START=0,STEP=1) foreach(iDat[i]) oDat[i] = (iDat == (i*STEP + START))
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_HighB
+// Author      : Wenheng Ma
+// Date        : 2019-10-27
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Get highest bit of input data.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_HighB
+  `ifdef ZionBasicCircuitLib_HighB
+    `__DefErr__(ZionBasicCircuitLib_HighB)
+  `else
+    `define ZionBasicCircuitLib_HighB(dat) (dat[$high(dat)])
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_OpppsateNumM
+// Author      : Wenheng Ma
+// Date        : 2019-10-16
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Get absolute value.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_OpppsateNumM
+  `ifdef ZionBasicCircuitLib_OpppsateNumM
+    `__DefErr__(ZionBasicCircuitLib_OpppsateNumM)
+  `else
+    `define ZionBasicCircuitLib_OpppsateNumM(dat) (~dat + 1'b1)
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_RotateLeftM
+// Author      : Wenheng Ma
+// Date        : 2019-10-16
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Rotate left.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_RotateLeftM
+  `ifdef ZionBasicCircuitLib_RotateLeftM
+    `__DefErr__(ZionBasicCircuitLib_RotateLeftM)
+  `else
+    `define ZionBasicCircuitLib_RotateLeftM(dat,shift) ({1<<{$bits(dat)'({{1<<{dat}},{1<<{dat}}} >> shift)}})
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_RotateRightM
+// Author      : Wenheng Ma
+// Date        : 2019-10-16
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Rotate right.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_RotateRightM
+  `ifdef ZionBasicCircuitLib_RotateRightM
+    `__DefErr__(ZionBasicCircuitLib_RotateRightM)
+  `else
+    `define ZionBasicCircuitLib_RotateRightM(dat,shift) ($bits(dat)'({dat,dat} >> shift))
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_SignExtdM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Signed extend 'dat'(data) according to the 'WIDTH'.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_SignExtdM
+  `ifdef ZionBasicCircuitLib_SignExtdM
+    `__DefErr__(ZionBasicCircuitLib_SignExtdM)
+  `else
+    `define ZionBasicCircuitLib_SignExtdM(dat,WIDTH) ({{(WIDTH-$bits(dat)+1){dat[$high(dat)]}},dat[$high(dat)-1:$low(dat)]})
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_ZeroExtdM
+// Author      : Wenheng Ma
+// Date        : 2019-10-14
+// Version     : 1.0
+// Parameter   : None
+// Description :
+//   Zero extend 'dat'(data) according to the 'WIDTH'.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_ZeroExtdM
+  `ifdef ZionBasicCircuitLib_ZeroExtdM
+    `__DefErr__(ZionBasicCircuitLib_ZeroExtdM)
+  `else
+    `define ZionBasicCircuitLib_ZeroExtdM(dat,WIDTH) ({{(WIDTH-$bits(dat)){1'b0}},dat})
+  `endif
+`endif
 //endsection: Single Line Macro ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+//section: Multiple Line Macro++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  In this section, All multiple line macro is design in this section.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_OnehotDefM
+// Author      : Wenheng Ma
+// Date        : 2019-10-28
+// Version     : 1.0
+// Parameter   : 
+//   START - Indicate the starting point of the data. For example, if START is 1, iDat==0 will not have a 
+//           Onehot signal. That is, the oDat[0] represents iDat==1. The default value is 0.
+//   STEP  - Indicate the step between two onehot signals. The default value is 1.
+// Description :
+//   Automatically define onehot signal according to iDat. 
+//   The width of onehot data is inferred automatically according to iDat, and then implement the decode circuits.
+//   This auto data type define macro is designed to use in functions.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-28 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_OnehotDefM
+  `ifdef ZionBasicCircuitLib_OnehotDefM
+    `__DefErr__(ZionBasicCircuitLib_OnehotDefM)
+  `else
+    `define ZionBasicCircuitLib_OnehotDefM(ohDat,iDat,START=0,STEP=1) \
+//logic  [(($bits(iDat)-START)/STEP):0] ohDat;\
+ foreach(ohDat[i]) ohDat[i] = (iDat == (i*STEP + START))\
+  `endif
+`endif
+//section: Multiple Line Macro++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 `Unuse_ZionBasicCircuitLib(Bc)

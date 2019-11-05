@@ -1,0 +1,22 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_RotateRightM
+// Author      : Wenheng Ma
+// Date        : 2019-10-16
+// Version     : 2.0
+// Parameter   : None
+// Description :
+//   Rotate right.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_RotateRightM
+  `ifdef ZionBasicCircuitLib_RotateRightM
+    `__DefErr__(ZionBasicCircuitLib_RotateRightM)
+  `else
+    `define ZionBasicCircuitLib_RotateRightM(dat,shift) ($bits(dat)'({dat,dat} >> shift))
+  `endif
+`endif

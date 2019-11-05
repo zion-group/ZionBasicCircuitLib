@@ -1,0 +1,23 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_OpppsateNumM
+// Author      : Wenheng Ma
+// Date        : 2019-10-16
+// Version     : 2.0
+// Parameter   : None
+// Description :
+//   Get absolute value.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-10-14 | Wenheng Ma |     1.0     |   Original Version
+// 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_OpppsateNumM
+  `ifdef ZionBasicCircuitLib_OpppsateNumM
+    `__DefErr__(ZionBasicCircuitLib_OpppsateNumM)
+  `else
+    `define ZionBasicCircuitLib_OpppsateNumM(dat) (~dat + 1'b1)
+  `endif
+`endif
+
