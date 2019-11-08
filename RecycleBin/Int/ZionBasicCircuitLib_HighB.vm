@@ -2,7 +2,7 @@
 // Macro name  : ZionBasicCircuitLib_HighB
 // Author      : Wenheng Ma
 // Date        : 2019-10-27
-// Version     : 2.0
+// Version     : 1.0
 // Parameter   : None
 // Description :
 //   Get highest bit of input data.

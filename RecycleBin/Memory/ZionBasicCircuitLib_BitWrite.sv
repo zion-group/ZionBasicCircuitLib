@@ -2,7 +2,7 @@
 // Module name  : ZionBasicCircuitLib_BitWrite
 // Author       : Wenheng Ma
 // Date         : 2019-10-28
-// Version      : 2.0
+// Version      : 1.0
 // Parameter    :
 //WIDTH_ADDR    -  width of input  address
 //WIDTH_DATA_IN -  width of input  data

@@ -77,11 +77,11 @@
 // 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`ifndef Disable_ZionBasicCircuitLib_AddSubdM
-  `ifdef ZionBasicCircuitLib_AddSubdM
-    `__DefErr__(ZionBasicCircuitLib_AddSubdM)
+`ifndef Disable_ZionBasicCircuitLib_AddSubM
+  `ifdef ZionBasicCircuitLib_AddSubM
+    `__DefErr__(ZionBasicCircuitLib_AddSubM)
   `else
-    `define ZionBasicCircuitLib_AddSubdM(addEn,subEn,datA,datB) (({$bits(datA){addEn & subEn}} & datA) + (({$bits(datB){subEn}} & datB)|({$bits(datB){addEn}} & datB)) + subEn)
+    `define ZionBasicCircuitLib_AddSubM(addEn,subEn,datA,datB) oDat = ({WIDTH_IN_A{addEn | subEn}} & datA) + (({WIDTH_IN_B{subEn}} & ~datB)|({WIDTH_IN_B{addEn}} & datB)+subEn)
   `endif
 `endif
 
@@ -134,6 +134,32 @@
     `define ZionBasicCircuitLib_Bin2OhM(iDat,oDat,START=0,STEP=1) foreach(iDat[i]) oDat[i] = (iDat == (i*STEP + START))
   `endif
 `endif
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_Bitmap2OhM
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 1.0
+// Parameter   : None 
+// Description :
+//   Bitmap vector to Onehot decoder.
+//   It is not a normal single line function. Designer must use it like a void function.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_Bitmap2OhM
+  `ifdef ZionBasicCircuitLib_Bitmap2OhM
+    `__DefErr__(ZionBasicCircuitLib_Bitmap2OhM)
+  `else
+    `define ZionBasicCircuitLib_Bitmap2OhM(iDat,oDat) \
+      always_comb \
+      foreach(oDat[i]) if(i==0) oDat[0]=iDat[0]; else oDat[i]= ~(|iDat[i-1]) & iDat[i];\
+  `endif
+`endif
+ 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Macro name  : ZionBasicCircuitLib_HighB
@@ -155,6 +181,38 @@
     `__DefErr__(ZionBasicCircuitLib_HighB)
   `else
     `define ZionBasicCircuitLib_HighB(dat) (dat[$high(dat)])
+  `endif
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_OnehotDefBitmap
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 2.0
+// Parameter   : None
+// Description :
+//   Automatically define onehot signal according to iDat which is a bitmap data. 
+//   The width of onehot data is inferred automatically according to iDat, and then implement the decode circuits.
+//   This auto data type define macro is designed to use in modules.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_OnehotDefBitmap
+`ifdef ZionBasicCircuitLib_OnehotDefBitmap
+  `__DefErr__(ZionBasicCircuitLib_OnehotDefBitmap)
+`else
+  `define ZionBasicCircuitLib_OnehotDefBitmap(ohDat,iDat_MT) \
+logic [($bits(iDat_MT))-1:0] ohDat;                           \
+  ZionBasicCircuitLib_Bitmap2Oh #(.WIDTH_IN($bits(iDat_MT)), \
+                                  .WIDTH_OUT($bits(ohDat)))   \
+                                U_Bitmap2Oh_``ohDat(         \
+                                  .iDat(iDat_MT),            \
+                                  .oDat(ohDat)               \
+                                );
   `endif
 `endif
 
@@ -298,13 +356,14 @@
 // 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`ifndef Disable_ZionBasicCircuitLib_OnehotDefM
-  `ifdef ZionBasicCircuitLib_OnehotDefM
-    `__DefErr__(ZionBasicCircuitLib_OnehotDefM)
+`ifndef Disable_ZionBasicCircuitLib_OnehotDefBinM
+  `ifdef ZionBasicCircuitLib_OnehotDefBinM
+    `__DefErr__(ZionBasicCircuitLib_OnehotDefBinM)
   `else
-    `define ZionBasicCircuitLib_OnehotDefM(ohDat,iDat,START=0,STEP=1) \
-//logic  [(($bits(iDat)-START)/STEP):0] ohDat;\
- foreach(ohDat[i]) ohDat[i] = (iDat == (i*STEP + START))\
+    `define ZionBasicCircuitLib_OnehotDefBinM(ohDat,iDat,START=0,STEP=1) \
+logic  [((2**($bits(iDat))-START)/STEP)-1:0] ohDat;\
+ foreach(ohDat[i]) ohDat[i] = (iDat == 0)\
+
   `endif
 `endif
 //section: Multiple Line Macro++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

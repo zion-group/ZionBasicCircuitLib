@@ -2,7 +2,7 @@
 // Macro name  : ZionBasicCircuitLib_AddSubM
 // Author      : Wenheng Ma
 // Date        : 2019-10-14
-// Version     : 2.0
+// Version     : 1.0
 // Parameter   : None
 // Description :
 //   Addition and subtraction computing. One adder is reused in both of the computation.
@@ -16,10 +16,10 @@
 // 2019-10-29 |  Yudi Gao  |     2.0     |   add testbench
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-`ifndef Disable_ZionBasicCircuitLib_AddSubdM
-  `ifdef ZionBasicCircuitLib_AddSubdM
-    `__DefErr__(ZionBasicCircuitLib_AddSubdM)
+`ifndef Disable_ZionBasicCircuitLib_AddSubM
+  `ifdef ZionBasicCircuitLib_AddSubM
+    `__DefErr__(ZionBasicCircuitLib_AddSubM)
   `else
-    `define ZionBasicCircuitLib_AddSubdM(addEn,subEn,datA,datB) (({$bits(datA){addEn & subEn}} & datA) + (({$bits(datB){subEn}} & datB)|({$bits(datB){addEn}} & datB)) + subEn)
+    `define ZionBasicCircuitLib_AddSubM(addEn,subEn,datA,datB) (({$bits(datA){addEn & subEn}} & datA) + (({$bits(datB){subEn}} & datB)|({$bits(datB){addEn}} & datB)) + subEn)
   `endif
 `endif

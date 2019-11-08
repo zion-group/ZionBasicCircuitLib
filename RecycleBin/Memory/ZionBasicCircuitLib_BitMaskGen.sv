@@ -8,6 +8,7 @@
 //  WIDTH_OUT  - width of output data
 //  WIDTH_BIT  - 
 //  MASK_FLAG  - value can be 0(active low) or 1(active high)
+//   TODO
 // Description :
 //   Generate mask of a number
 // Modification History:

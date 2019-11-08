@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Module name : ZionBasicCircuitLib_WriteDatExtd
 // Author      : Wenheng Ma
@@ -33,12 +32,12 @@ ZionBasicCircuitLib_WriteDatExtd  #(.WIDTH_TYPE_NUM($bits(iEn_MT)),       \
 `endif
 
 module ZionBasicCircuitLib_WriteDatExtd
-#(WIDTH_TYPE_NUM   = "_", //$bits(iEn)  // number of width type
-  WIDTH_ADDR       = "_", //$bits(iAddr)// width of input  addr
-  WIDTH_DATA_IN    = "_", //$bits(iDat) // width of input  data
-  WIDTH_DATA_OUT   = "_", //$bits(oDat) // width of output data
-  MULTI_DATA_WIDTH = "_",
-  ADDR_TYPE        = 0
+#(int WIDTH_TYPE_NUM   = "_", //$bits(iEn)  // number of width type
+ int WIDTH_ADDR       = "_", //$bits(iAddr)// width of input  addr
+ int WIDTH_DATA_IN    = "_", //$bits(iDat) // width of input  data
+ int WIDTH_DATA_OUT   = "_", //$bits(oDat) // width of output data
+ int MULTI_DATA_WIDTH[WIDTH_TYPE_NUM] = {0,0,0},
+ int ADDR_TYPE        = 0
 )(
   input        [WIDTH_TYPE_NUM-1:0] iEn  ,
   input        [WIDTH_ADDR    -1:0] iAddr,
@@ -57,15 +56,17 @@ module ZionBasicCircuitLib_WriteDatExtd
     assign oDat = datTmp;
   end `gen_else begin : MultiDatGen
     for(genvar i=0;i<WIDTH_TYPE_NUM;i++) begin : EachDatGen
+    //parameter int  slip1=WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i];
       logic [WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i]-1:0][MULTI_DATA_WIDTH[i]-1:0] datTmp;
       wire  [MULTI_DATA_WIDTH[i]-1:0] wrDat = (iEn[i])? iDat[MULTI_DATA_WIDTH[i]-1:0] : '0;
       `gen_if(MULTI_DATA_WIDTH[i]==WIDTH_DATA_OUT) begin : DataGen_FullWidth
-        datTmp[0] = wrDat ;
+       assign datTmp[0] = wrDat ;
       end `gen_else begin : DataGen_NonFullWidth
         `gen_if(ADDR_TYPE==0) begin : AddrType0_datTmpGen
           always_comb begin
             foreach(datTmp[j]) begin
-              datTmp[j] = (iAddr[$high(iAddr)-:$clog(WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i])] == j)? wrDat : '0;
+            //parameter int  slip2=WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i];
+              datTmp[j] = (iAddr[$high(iAddr)-:$clog2(WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i])] == j)? wrDat : '0;
             end
           end
         end `gen_else begin : AddrType1_datTmpGen
@@ -76,7 +77,10 @@ module ZionBasicCircuitLib_WriteDatExtd
       end
       assign rsltTmp[i] = datTmp;
     end
-    assign oDat = |rsltTmp;
+    always_comb begin
+      oDat = '0;
+      foreach(rsltTmp[i]) oDat = rsltTmp[i] | oDat;
+    end
   end
 
 

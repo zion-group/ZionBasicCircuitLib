@@ -3,7 +3,7 @@
 // Module name : ZionBasicCircuitLib_Bin2Oh
 // Author      : Wenheng Ma
 // Date        : 2019-10-28
-// Version     : 2.0
+// Version     : 1.0
 // Parameter   :
 //   START - Indicate the starting point of the data. For example, if START is 1, iDat==0 will not have a 
 //           Onehot signal. That is, the oDat[0] represents iDat==1. The default value is 0.
@@ -43,7 +43,9 @@ module ZionBasicCircuitLib_Bin2Oh
 );
 
   always_comb begin
-    foreach(oDat[i]) oDat[i] = (iDat == (i*STEP + START));
+    // foreach([oDat``_i_]) 
+    //   oDat``[_i_] = (iDat == (_i_*STEP + START));
+    foreach(oDat[i])  oDat[i] = (iDat == (i*STEP + START));
   end
 
   // parameter check.
@@ -54,7 +56,7 @@ module ZionBasicCircuitLib_Bin2Oh
         $finish;
       `endif
     end
-    if(((WIDTH_IN-START)/STEP) < WIDTH_OUT) begin
+    if(((2**WIDTH_IN-START)/STEP) < WIDTH_OUT) begin
       $error("Parameter Error: Bin2Oh data width mismatch. The width of output data is overflow!!");
       `ifdef CHECK_ERR_EXIT
         $finish;

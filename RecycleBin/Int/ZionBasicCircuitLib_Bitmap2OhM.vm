@@ -1,0 +1,25 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_Bitmap2OhM
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 1.0
+// Parameter   : None 
+// Description :
+//   Bitmap vector to Onehot decoder.
+//   It is not a normal single line function. Designer must use it like a void function.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_Bitmap2OhM
+  `ifdef ZionBasicCircuitLib_Bitmap2OhM
+    `__DefErr__(ZionBasicCircuitLib_Bitmap2OhM)
+  `else
+    `define ZionBasicCircuitLib_Bitmap2OhM(iDat,oDat) \
+      always_comb \
+      foreach(oDat[i]) if(i==0) oDat[0]=iDat[0]; else oDat[i]= ~(|iDat[i-1]) & iDat[i];\
+  `endif
+`endif

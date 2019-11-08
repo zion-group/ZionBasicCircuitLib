@@ -2,7 +2,7 @@
 // Macro name  : ZionBasicCircuitLib_OnehotDefM
 // Author      : Wenheng Ma
 // Date        : 2019-10-28
-// Version     : 2.0
+// Version     : 1.0
 // Parameter   : 
 //   START - Indicate the starting point of the data. For example, if START is 1, iDat==0 will not have a 
 //           Onehot signal. That is, the oDat[0] represents iDat==1. The default value is 0.

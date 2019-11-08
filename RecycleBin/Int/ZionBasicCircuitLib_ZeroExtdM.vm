@@ -2,7 +2,7 @@
 // Macro name  : ZionBasicCircuitLib_ZeroExtdM
 // Author      : Wenheng Ma
 // Date        : 2019-10-14
-// Version     : 2.0
+// Version     : 1.0
 // Parameter   : None
 // Description :
 //   Zero extend 'dat'(data) according to the 'WIDTH'.

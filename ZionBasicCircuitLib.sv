@@ -4,13 +4,13 @@
 // File name   : ZionBasicCircuitLib.sv
 // Author      : Zion Team
 // Date        : 2019-06-20
-// Version     : 0.1
+// Version     : 1.0
 // Description :
 //     This is a basic circuit element library. All packages, interfaces and modules is designed in this file.
 // Modification History:
 //   Date   |   Author    |   Version   |   Change Description
 //======================================================================================================================
-// 19-07-24 |  Zion Team  |     0.1     |   Original Version
+// 19-07-24 |  Zion Team  |     1.0     |   Original Version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //section: DFF +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -413,14 +413,19 @@ endmodule: ZionBasicCircuitLib_EnRcDff
 //section: Int +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  In this section, many kinds of Int instruction are provided.
 //  Name meaning:
-//    Abs         - Calculate the absolute value of a number
-//    AddSub      - Use an adder for the addition
-//    Bin2Oh      - Binary to Onehot decoder.
-//    Oh2Bin      - Onehot to Binary decoder.
-//    OnehotDef   -  Automatically define onehot signal according to iDat. 
-//                   The width of onehot data is inferred automatically according to iDat, and then implement the decode circuits.
-//                   This auto data type define macro is designed to use in modules.
-//    OpppsateNum - Calculate a complement of a number
+//    Abs            - Calculate the absolute value of a number
+//    AddSub         - Use an adder for the addition
+//    Bin2Oh         - Binary to Onehot decoder.
+//    Oh2Bin         - Onehot to Binary decoder.
+//    Bitmap2Oh      - Bitmap vector to Onehot decoder.
+//    MuxBin         - Bit mux according to a binary selection data.
+//    MultiTypeShift - Get absolute value.
+//    MuxBitmap      - Bit mux according to a bitmap selection data. It is a priority mux. the LSB has the highest priority.
+//    MuxOnehot      - Bit mux according to a onehot selection data. 
+//    OnehotDef      - Automatically define onehot signal according to iDat. 
+//                     The width of onehot data is inferred automatically according to iDat, and then implement the decode circuits.
+//                     This auto data type define macro is designed to use in modules.
+//    OpppsateNum    - Calculate a complement of a number
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Macro name  : ZionBasicCircuitLib_Abs
@@ -513,7 +518,6 @@ module ZionBasicCircuitLib_AddSub
 
   always_comb begin
     oDat = ({WIDTH_IN_A{addEn | subEn}} & datA) + (({WIDTH_IN_B{subEn}} & ~datB)|({WIDTH_IN_B{addEn}} & datB)+subEn);
-    //    ({$bits(datA){addEn & subEn}} & datA) + (({$bits(datB){subEn}} & datB)|({$bits(datB){addEn}} & datB)) + subEn
   end
 
   // parameter check
@@ -671,6 +675,345 @@ module ZionBasicCircuitLib_Oh2Bin
 
 endmodule: ZionBasicCircuitLib_Oh2Bin
 `endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name : ZionBasicCircuitLib_Bitmap2Oh
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 2.0
+// Parameter   :
+//   WIDTH_IN  - Width of input data.
+//   WIDTH_OUT - Width of output data.
+// Description :
+//   Bitmap vector to Onehot decoder.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_Bitmap2Oh
+`ifdef ZionBasicCircuitLib_Bitmap2Oh
+  `__DefErr__(ZionBasicCircuitLib_Bitmap2Oh)
+`else
+  `define ZionBasicCircuitLib_Bitmap2Oh(UnitName,iDat_MT,oDat_MT) \
+ZionBasicCircuitLib_Bitmap2Oh#(.WIDTH_IN($bits(iDat_MT)),         \
+                               .WIDTH_OUT($bits(oDat_MT))         \
+                              )                                   \
+                              UnitName(                           \
+                                       .iDat(iDat_MT),            \
+                                       .oDat(oDat_MT)             \
+                                       );
+  `endif
+
+module ZionBasicCircuitLib_Bitmap2Oh
+#(parameter
+  WIDTH_IN  = "_", //$bits(iDat)// width of input data
+  WIDTH_OUT = "_"  //$bits(oDat)// width of output data
+)(
+  input        [WIDTH_IN -1:0] iDat,
+  output logic [WIDTH_OUT-1:0] oDat
+);
+
+  logic [WIDTH_IN-2:0] previousFlg;
+  for(genvar i=1;i<WIDTH_IN-1;i++) 
+    assign previousFlg[i] = |iDat[i:0];
+    assign oDat[0] = iDat[0];
+  for(genvar i=1;i<WIDTH_OUT;i++) 
+    assign oDat[i] = ~previousFlg[i-1] & iDat[i];
+  // parameter check.
+  initial begin
+    if(WIDTH_IN != WIDTH_OUT) begin
+      $error("Parameter Error: Bitmap2Oh data width mismatch. The width of output data is not equal to the width of input data!!");
+      `ifdef CHECK_ERR_EXIT
+        $finish;
+      `endif
+    end
+  end
+
+endmodule: ZionBasicCircuitLib_Bitmap2Oh
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name : ZionBasicCircuitLib_MuxBin
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 2.0
+// Parameter   :
+//   WIDTH_SEL - Width of selection data(iSel). The selection data is a binary data.
+//   WIDTH_IN  - Width of input data.
+//   WIDTH_OUT - Width of output data.
+// Description :
+//   Bit mux according to a binary selection data.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_MuxBin
+`ifdef ZionBasicCircuitLib_MuxBin
+  `__DefErr__(ZionBasicCircuitLib_MuxBin)
+`else
+  `define ZionBasicCircuitLib_MuxBin(UnitName,iSel_MT,iDat_MT,oDat_MT) \
+ZionBasicCircuitLib_MuxBin  #(.WIDTH_SEL($bits(iSel_MT)),              \
+                                .WIDTH_IN($bits(iDat_MT)),             \
+                                .WIDTH_OUT($bits(oDat_MT)))            \
+                              UnitName(                                \
+                                .iSel(iSel_MT),                        \
+                                .iDat(iDat_MT),                        \
+                                .oDat(oDat_MT)                         \
+                              );
+`endif
+
+module ZionBasicCircuitLib_MuxBin
+#(WIDTH_SEL = "_", //$bits(iSel)// width of selection data
+  WIDTH_IN  = "_", //$bits(iDat)// width of input data
+  WIDTH_OUT = "_"  //$bits(oDat)// width of output data
+)(
+  input  logic [WIDTH_SEL-1:0] iSel,
+  input  logic [WIDTH_IN -1:0] iDat,
+  output logic [WIDTH_OUT-1:0] oDat
+);
+
+  wire [WIDTH_IN/WIDTH_OUT-1:0][WIDTH_OUT-1:0] datTmp = iDat;
+  assign oDat   = datTmp[iSel];
+
+  // parameter check.
+  initial begin
+    if((WIDTH_IN%WIDTH_OUT)!=0) begin
+      $error("Parameter Error: MuxBin data width mismatch. The width of output data is not divisible by the width of input data!!");
+      `ifdef CHECK_ERR_EXIT
+        $finish;
+      `endif
+    end
+    if(WIDTH_OUT*(2**WIDTH_SEL) < WIDTH_IN) begin
+      $error("Parameter Error: MuxBin data width mismatch. The width of output data is overflow!!");
+      `ifdef CHECK_ERR_EXIT
+        $finish;
+      `endif
+    end
+  end
+
+  // Assertions for iSel overflow.
+  always_comb begin
+   $display("WIDTH_OUT = %0d,WIDTH_SEL = %0d,WIDTH_IN = %0d",WIDTH_OUT,WIDTH_SEL,WIDTH_IN);
+   $display("WIDTH_OUT*(2**WIDTH_SEL)= %0d",WIDTH_OUT*(2**WIDTH_SEL));
+   
+    // If iSel try to get a data that is beyond the input boundry, print an error.
+    assert(WIDTH_OUT*(2**WIDTH_SEL) == WIDTH_IN) else $error("Signal Error: iSel is overflow. There is no enough data for input.");
+   
+  end
+
+endmodule: ZionBasicCircuitLib_MuxBin
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name : ZionBasicCircuitLib_MuxBitmap
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 2.0
+// Parameter   :
+//   WIDTH_SEL - Width of selection data(iSel). The selection data is a binary data.
+//   WIDTH_IN  - Width of input data.
+//   WIDTH_OUT - Width of output data.
+// Description :
+//   Bit mux according to a bitmap selection data. It is a priority mux. the LSB has the highest priority.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_MuxBitmap
+`ifdef ZionBasicCircuitLib_MuxBitmap
+  `__DefErr__(ZionBasicCircuitLib_MuxBitmap)
+`else
+  `define ZionBasicCircuitLib_MuxBitmap(UnitName,iSel_MT,iDat_MT,oDat_MT) \
+ZionBasicCircuitLib_MuxBitmap  #(.WIDTH_SEL($bits(iSel_MT)),              \
+                                  .WIDTH_IN($bits(iDat_MT)),              \
+                                  .WIDTH_OUT($bits(oDat_MT)))             \
+                                UnitName(                                 \
+                                  .iSel(iSel_MT),                         \
+                                  .iDat(iDat_MT),                         \
+                                  .oDat(oDat_MT)                          \
+                                )
+`endif
+
+module ZionBasicCircuitLib_MuxBitmap
+#(WIDTH_SEL = "_", //$bits(iSel)// width of selection data
+  WIDTH_IN  = "_", //$bits(iDat)// width of input data
+  WIDTH_OUT = "_"  //$bits(oDat)// width of output data
+)(
+  input  logic [WIDTH_SEL-1:0] iSel, 
+  input  logic [WIDTH_IN -1:0] iDat,
+  output logic [WIDTH_OUT-1:0] oDat 
+);
+  // Get onehot selection signal.
+  logic [WIDTH_SEL-2:0] selPreviousFlg;
+  logic [WIDTH_SEL-1:0] selOh;
+  for(genvar i=1;i<WIDTH_SEL-1;i++) 
+    assign selPreviousFlg[i] = |iSel[i:0];
+    assign selOh[0] = iSel[0];
+  for(genvar i=1;i<WIDTH_SEL;i++) 
+    assign selOh[i] = ~selPreviousFlg[i-1] & iSel[i];
+
+  logic [WIDTH_OUT/WIDTH_IN-1:0][WIDTH_IN-1:0] datTmp, rsltTmp;
+  assign datTmp = iDat;
+  always_comb begin
+    foreach(rsltTmp[i]) rsltTmp[i] = selOh[i]? datTmp : '0;
+  end
+  assign oDat   = rsltTmp;
+  // parameter check.
+  initial begin
+    if(WIDTH_IN*WIDTH_SEL != WIDTH_OUT) begin
+      $error("Parameter Error: MuxBitmap data width mismatch. The width of input data is equal to WIDTH_OUT * WIDTH_SEL !!");
+      `ifdef CHECK_ERR_EXIT
+        $finish;
+      `endif
+    end
+  end
+endmodule: ZionBasicCircuitLib_MuxBitmap
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name : ZionBasicCircuitLib_MuxOnehot
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 2.0
+// Parameter   :
+//   WIDTH_SEL - Width of selection data(iSel). The selection data is a binary data.
+//   WIDTH_IN  - Width of input data.
+//   WIDTH_OUT - Width of output data.
+// Description :
+//   Bit mux according to a onehot selection data.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_MuxOnehot
+`ifdef ZionBasicCircuitLib_MuxOnehot
+  `__DefErr__(ZionBasicCircuitLib_MuxOnehot)
+`else
+  `define ZionBasicCircuitLib_MuxOnehot(UnitName,iSel_MT,iDat_MT,oDat_MT) \
+ZionBasicCircuitLib_MuxOnehot  #(.WIDTH_SEL($bits(iSel_MT)),               \
+                                  .WIDTH_IN($bits(iDat_MT)),              \
+                                  .WIDTH_OUT($bits(oDat_MT)))             \
+                                UnitName(                                 \
+                                  .iSel(iSel_MT),                         \
+                                  .iDat(iDat_MT),                         \
+                                  .oDat(oDat_MT)                          \
+                                )
+`endif
+
+module ZionBasicCircuitLib_MuxOnehot
+#(WIDTH_SEL = "_", //$bits(iSel)// width of selection data
+  WIDTH_IN  = "_", //$bits(iDat)// width of input data
+  WIDTH_OUT = "_"  //$bits(oDat)// width of output data
+)(
+  input  logic [WIDTH_SEL-1:0] iSel,
+  input  logic [WIDTH_IN -1:0] iDat,
+  output logic [WIDTH_OUT-1:0] oDat
+);
+
+  logic [WIDTH_IN/WIDTH_OUT-1:0][WIDTH_OUT-1:0] datTmp, rsltTmp;
+  always_comb begin
+    foreach(datTmp[i]) datTmp[i] = iDat [i*WIDTH_OUT+:WIDTH_OUT];
+    foreach(rsltTmp[i]) rsltTmp[i] = iSel[i]? datTmp[i] : '0;
+    foreach(oDat[i])    oDat   = |rsltTmp[i];
+  end
+  // parameter check.
+  initial begin
+    if(WIDTH_OUT*WIDTH_SEL != WIDTH_IN) begin
+      $error("Parameter Error: MuxBin data width mismatch. The width of input data is equal to WIDTH_OUT * WIDTH_SEL !!");
+      $display("",);
+      `ifdef CHECK_ERR_EXIT
+        $finish;
+      `endif
+    end
+  end
+
+  always_comb begin
+    assert($onehot0(iSel)) 
+    else $error("Signal Error: More than 1 selection signals are activated in iSel which only one signal could work.");
+  end
+
+endmodule: ZionBasicCircuitLib_MuxOnehot
+`endif
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_MultiTypeShift
+// Author      : Wenheng Ma
+// Date        : 2019-11-06
+// Version     : 2.0
+// Parameter   : None
+// Description :
+//   Get absolute value.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-06 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_MultiTypeShift
+`ifdef ZionBasicCircuitLib_MultiTypeShift
+  `__DefErr__(ZionBasicCircuitLib_MultiTypeShift)
+`else
+  `define ZionBasicCircuitLib_MultiTypeShift(UnitName,iSftR_MT,iSftA_MT,iSftL_MT,iDat_MT,iSftBit_MT,oDat_MT) \
+ZionBasicCircuitLib_MultiTypeShift  #(.INPUT_DATA_WIDTH($bits(iDat_MT)),              \
+                                      .SHIFT_BIT_WIDTH($bits(iSftBit_MT)),            \
+                                      .OUTPUT_DATA_WIDTH($bits(oDat_MT)))             \
+                                UnitName(                                             \
+                                      .iSftR(iSftR_MT),                               \
+                                      .iSftA(iSftA_MT),                               \
+                                      .iSftL(iSftL_MT),                               \
+                                      .iDat(iDat_MT),                                 \
+                                      .iSftBit(iSftBit_MT),                           \
+                                      .oDat(oDat_MT)                                  \
+                                );
+`endif
+module ZionBasicCircuitLib_MultiTypeShift
+#(INPUT_DATA_WIDTH  = 32,
+  SHIFT_BIT_WIDTH   = 5 ,
+  OUTPUT_DATA_WIDTH = 32
+)(
+  input                                iSftR  ,
+  input                                iSftA  ,
+  input                                iSftL  ,
+  //input                                iSftR  ,
+  input        [INPUT_DATA_WIDTH -1:0] iDat   ,
+  input        [SHIFT_BIT_WIDTH  -1:0] iSftBit,
+  output logic [OUTPUT_DATA_WIDTH-1:0] oDat
+);
+
+  logic [INPUT_DATA_WIDTH  -1:0] datReverse, sftDat, highBits;
+  logic [INPUT_DATA_WIDTH*2-1:0] jointDat,sftRsltTmp, rsltReverse;
+  always_comb begin
+    datReverse  = {<<{iDat}};//reverse
+    sftDat      =  ({INPUT_DATA_WIDTH{iSftR}} & iDat)
+                  |({INPUT_DATA_WIDTH{iSftL}} & datReverse); 
+    highBits    = {INPUT_DATA_WIDTH{iSftA & sftDat[$high(sftDat)]}};
+    jointDat    = (iSftR)? {highBits,sftDat} :{sftDat,sftDat} ;
+    sftRsltTmp  = (jointDat >> iSftBit);//INPUT_DATA_WIDTH*2'
+    rsltReverse = {<<{sftRsltTmp}};
+    oDat        =  ({INPUT_DATA_WIDTH{iSftR}} & sftRsltTmp) 
+                  |({INPUT_DATA_WIDTH{iSftL}} & rsltReverse);
+  end
+
+  // parameter check.
+  initial begin
+    if(INPUT_DATA_WIDTH != OUTPUT_DATA_WIDTH) begin
+      $error("Parameter Error: MultiTypeShift data width mismatch. The width of output data is not equal the width of input data!!");
+      `ifdef CHECK_ERR_EXIT
+        $finish;
+      `endif
+    end
+  end
+
+endmodule
+`endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Macro name  : ZionBasicCircuitLib_OnehotDef
 // Author      : Wenheng Ma

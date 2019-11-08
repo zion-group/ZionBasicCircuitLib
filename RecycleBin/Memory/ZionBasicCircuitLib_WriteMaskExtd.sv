@@ -17,7 +17,7 @@
 `ifdef ZionBasicCircuitLib_WriteMaskExtd
   `__DefErr__(ZionBasicCircuitLib_WriteMaskExtd)
 `else
-  `define ZionBasicCircuitLib_WriteMaskExtd(UnitName,iEn_MT,iAddr_MT,iDat_MT,oDat_MT,MASK_WIDTH_MT={0},ADDR_TYPE_MT=0,MASK_FLAG_MT=0) \
+  `define ZionBasicCircuitLib_WriteMaskExtd(UnitName,iEn_MT,iAddr_MT,oDat_MT,MASK_WIDTH_MT={0},ADDR_TYPE_MT=0,MASK_FLAG_MT=0) \
 ZionBasicCircuitLib_WriteMaskExtd  #(.WIDTH_TYPE_NUM($bits(iEn_MT)),  \
                                   .WIDTH_ADDR($bits(iAddr_MT)),       \
                                   .MASK_WIDTH(MASK_WIDTH_MT),         \
@@ -32,13 +32,14 @@ ZionBasicCircuitLib_WriteMaskExtd  #(.WIDTH_TYPE_NUM($bits(iEn_MT)),  \
 `endif
 
 module ZionBasicCircuitLib_WriteMaskExtd
-#(WIDTH_TYPE_NUM = "_", //$bits(iEn)  // number of width type
-  WIDTH_ADDR     = "_", //$bits(iAddr)// width of input  addr
-  MASK_WIDTH     = "_",
-  WIDTH_DATA_OUT = "_", //$bits(oDat) // width of output data
-  ADDR_TYPE      =  0 ,
-  MASK_FLAG      =  0
-)(
+#(int WIDTH_TYPE_NUM = "_", //$bits(iEn)  // number of width type
+  int WIDTH_ADDR     = "_", //$bits(iAddr)// width of input  addr
+  int MASK_WIDTH[WIDTH_TYPE_NUM]    = {0,0,0},
+  int WIDTH_DATA_OUT = "_", //$bits(oDat) // width of output data
+  int ADDR_TYPE      =  0 ,
+  int MASK_FLAG      =  0
+)
+(
   input        [WIDTH_TYPE_NUM-1:0] iEn  ,
   input        [WIDTH_ADDR    -1:0] iAddr,
   output logic [WIDTH_DATA_OUT-1:0] oDat
@@ -74,12 +75,12 @@ module ZionBasicCircuitLib_WriteMaskExtd
       end
       wire  [MASK_WIDTH[i]-1:0] wrDat = (iEn[i])? maskFlg : unmaskFlg;
       `gen_if(MASK_WIDTH[i]==WIDTH_DATA_OUT) begin : DataGen_FullWidth
-        datTmp[0] = wrDat ;
+       assign datTmp[0] = wrDat;
       end `gen_else begin : DataGen_NonFullWidth
         `gen_if(ADDR_TYPE==0) begin : AddrType0_datTmpGen
           always_comb begin
             foreach(datTmp[j]) begin
-              datTmp[j] = (iAddr[$high(iAddr)-:$clog(WIDTH_DATA_OUT/MASK_WIDTH[i])] == j)? wrDat : unmaskFlg;
+              datTmp[j] = (iAddr[$high(iAddr)-:$clog2(WIDTH_DATA_OUT/MASK_WIDTH[i])] == j)? wrDat : unmaskFlg;
             end
           end
         end `gen_else begin : AddrType1_datTmpGen
@@ -90,7 +91,11 @@ module ZionBasicCircuitLib_WriteMaskExtd
       end
       assign rsltTmp[i] = datTmp;
     end
-    assign oDat = |rsltTmp;
+    always_comb begin
+    oDat = 0;
+    foreach(rsltTmp[j]) oDat = oDat | rsltTmp[j];
+    end
+
   end
 
 

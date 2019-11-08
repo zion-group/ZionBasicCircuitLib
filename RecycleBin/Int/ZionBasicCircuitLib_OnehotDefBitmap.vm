@@ -1,0 +1,31 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Macro name  : ZionBasicCircuitLib_OnehotDefBitmap
+// Author      : Wenheng Ma
+// Date        : 2019-11-04
+// Version     : 2.0
+// Parameter   : None
+// Description :
+//   Automatically define onehot signal according to iDat which is a bitmap data. 
+//   The width of onehot data is inferred automatically according to iDat, and then implement the decode circuits.
+//   This auto data type define macro is designed to use in modules.
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-04 | Wenheng Ma |     1.0     |   Original Version
+// 2019-11-06 |  Yudi Gao  |     2.0     |   Add testbench
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+`ifndef Disable_ZionBasicCircuitLib_OnehotDefBitmap
+`ifdef ZionBasicCircuitLib_OnehotDefBitmap
+  `__DefErr__(ZionBasicCircuitLib_OnehotDefBitmap)
+`else
+  `define ZionBasicCircuitLib_OnehotDefBitmap(ohDat,iDat_MT) \
+logic [($bits(iDat_MT))-1:0] ohDat;                           \
+  ZionBasicCircuitLib_Bitmap2Oh #(.WIDTH_IN($bits(iDat_MT)), \
+                                  .WIDTH_OUT($bits(ohDat)))   \
+                                U_Bitmap2Oh_``ohDat(         \
+                                  .iDat(iDat_MT),            \
+                                  .oDat(ohDat)               \
+                                );
+  `endif
+`endif
