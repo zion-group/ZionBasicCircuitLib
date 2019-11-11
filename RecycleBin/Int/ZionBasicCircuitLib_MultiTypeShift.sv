@@ -16,7 +16,7 @@
 `ifdef ZionBasicCircuitLib_MultiTypeShift
   `__DefErr__(ZionBasicCircuitLib_MultiTypeShift)
 `else
-  `define ZionBasicCircuitLib_MultiTypeShift(UnitName,iSftR_MT,iSftA_MT,iSftL_MT,iDat_MT,iSftBit_MT,oDat_MT) \
+  `define ZionBasicCircuitLib_MultiTypeShift(UnitName,iSftR_MT,iSftA_MT,iSftL_MT,iSftC_MT,iDat_MT,iSftBit_MT,oDat_MT) \
 ZionBasicCircuitLib_MultiTypeShift  #(.INPUT_DATA_WIDTH($bits(iDat_MT)),              \
                                       .SHIFT_BIT_WIDTH($bits(iSftBit_MT)),            \
                                       .OUTPUT_DATA_WIDTH($bits(oDat_MT)))             \
@@ -24,6 +24,7 @@ ZionBasicCircuitLib_MultiTypeShift  #(.INPUT_DATA_WIDTH($bits(iDat_MT)),        
                                       .iSftR(iSftR_MT),                               \
                                       .iSftA(iSftA_MT),                               \
                                       .iSftL(iSftL_MT),                               \
+                                      .iSftC(iSftC_MT),                               \
                                       .iDat(iDat_MT),                                 \
                                       .iSftBit(iSftBit_MT),                           \
                                       .oDat(oDat_MT)                                  \
@@ -37,24 +38,31 @@ module ZionBasicCircuitLib_MultiTypeShift
   input                                iSftR  ,
   input                                iSftA  ,
   input                                iSftL  ,
-  //input                                iSftR  ,
+  input                                iSftC  ,
   input        [INPUT_DATA_WIDTH -1:0] iDat   ,
   input        [SHIFT_BIT_WIDTH  -1:0] iSftBit,
   output logic [OUTPUT_DATA_WIDTH-1:0] oDat
 );
 
-  logic [INPUT_DATA_WIDTH  -1:0] datReverse, sftDat, highBits;
+  logic [INPUT_DATA_WIDTH  -1:0] datReverse, sftDat, highBits,lowBits;
   logic [INPUT_DATA_WIDTH*2-1:0] jointDat,sftRsltTmp, rsltReverse;
   always_comb begin
     datReverse  = {<<{iDat}};//reverse
     sftDat      =  ({INPUT_DATA_WIDTH{iSftR}} & iDat)
                   |({INPUT_DATA_WIDTH{iSftL}} & datReverse); 
     highBits    = {INPUT_DATA_WIDTH{iSftA & sftDat[$high(sftDat)]}};
-    jointDat    = (iSftR)? {highBits,sftDat} :{sftDat,sftDat} ;
+    lowBits     = {INPUT_DATA_WIDTH{iSftA & sftDat[$low(sftDat)]}};//add
+    jointDat    = (iSftR & ~iSftC)? {highBits,sftDat} :
+                  (iSftR &  iSftC)? {sftDat,sftDat}   :
+                  (iSftL &  iSftC)? {sftDat,sftDat}  :
+                  (iSftL &  iSftA)? {sftDat,datReverse}  :{sftDat,sftDat};
     sftRsltTmp  = (jointDat >> iSftBit);//INPUT_DATA_WIDTH*2'
     rsltReverse = {<<{sftRsltTmp}};
     oDat        =  ({INPUT_DATA_WIDTH{iSftR}} & sftRsltTmp) 
-                  |({INPUT_DATA_WIDTH{iSftL}} & rsltReverse);
+                  |({INPUT_DATA_WIDTH{iSftL & ~iSftA & ~iSftC}} & rsltReverse)
+                  |({INPUT_DATA_WIDTH{iSftL &  iSftA}} & rsltReverse[INPUT_DATA_WIDTH*2-1:INPUT_DATA_WIDTH])
+                  |({INPUT_DATA_WIDTH{iSftL &  iSftC}} & rsltReverse[INPUT_DATA_WIDTH/2*3-:INPUT_DATA_WIDTH]);
+                  
   end
 
   // parameter check.

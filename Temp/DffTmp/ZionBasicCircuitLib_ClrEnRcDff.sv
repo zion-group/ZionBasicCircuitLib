@@ -4,7 +4,7 @@
 // File name   : ZionBasicCircuitLib.sv
 // Author      : Zion Team
 // Date        : 2019-06-20
-// Version     : 2.0
+// Version     : 1.0
 // Parameter   :
 //   WIDTH_IN  - width of input data,input data is range from 0 to 2**WIDTH_IN-1
 //   WIDTH_OUT - width of output data,output data is range from 0 to 2**WIDTH_OUT-1
@@ -13,10 +13,10 @@
 // Description :
 //     This is a basic circuit element library. All packages, interfaces and modules is designed in this file.
 // Modification History:
-//    Date    |   Author    |   Version   |   Change Description
+//   Date   |   Author    |   Version   |   Change Description
 //======================================================================================================================
-// 2019-07-24 |  Zion Team  |     1.0     |   Original Version
-// 2019-10-22 |   Yudi Gao  |     2.0     |   Change Reset Model
+// 07-24-19 |  Zion Team  |     1.0     |   Original Version
+// 10-22-19 |   Yudi Gao  |     2.0     |   Change Reset Model
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //section: DFF +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -91,16 +91,17 @@ module ZionBasicCircuitLib_ClrEnRcDff
 );
 
   `ifdef RST_CFG_ASYN_LOW
-    localparam RST_MACRO_CFG = 0;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 0 : 4;
   `elsif RST_CFG_ASYN_HIGH
-    localparam RST_MACRO_CFG = 1;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 1 : 4;
   `elsif RST_CFG_SYN_LOW
-    localparam RST_MACRO_CFG = 2;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 2 : 4;
   `elsif RST_CFG_SYN_HIGH
-    localparam RST_MACRO_CFG = 3;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 3 : 4;
   `endif
-  
 
+  
+ 
 
   `gen_if((RST_CFG==0)|| (RST_MACRO_CFG==0) ) begin: Dff_AsynNeg//
     always_ff@(posedge clk, negedge rst) // DFF with asynchronous reset, and the reset signal is active low.

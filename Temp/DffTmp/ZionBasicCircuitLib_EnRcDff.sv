@@ -3,7 +3,7 @@
 // Module name : ZionBasicCircuitLib_EnRcDff
 // Author      : Wenheng Ma
 // Date        : 2019-07-24
-// Version     : 2.0 
+// Version     : 1.0 
 // Parameter   :
 //   WIDTH_IN  - width of input data,input data is range from 0 to 2**WIDTH_IN-1
 //   WIDTH_OUT - width of output data,output data is range from 0 to 2**WIDTH_OUT-1
@@ -21,10 +21,10 @@
 //   Reset value is indicated by the INI_DATA.
 //   Enable(iEn) is active high.
 // Modification History:
-//    Date    |   Author   |   Version   |   Change Description
+//   Date   |   Author   |   Version   |   Change Description
 //======================================================================================================================
-// 2019-07-24 | Wenheng Ma |     1.0     |   Original Version
-// 2019-10-22 |  Yudi Gao  |     2.0     |   Change Reset Model
+// 07-24-19 | Wenheng Ma |     1.0     |   Original Version
+// 10-22-19 |  Yudi Gao  |     2.0     |   Change Reset Model
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 `ifndef Disable_ZionBasicCircuitLib_EnRcDff
 `ifdef ZionBasicCircuitLib_EnRcDff
@@ -57,13 +57,13 @@ module ZionBasicCircuitLib_EnRcDff
 );
 
   `ifdef RST_CFG_ASYN_LOW
-    localparam RST_MACRO_CFG = 0;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 0 : 4;
   `elsif RST_CFG_ASYN_HIGH
-    localparam RST_MACRO_CFG = 1;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 1 : 4;
   `elsif RST_CFG_SYN_LOW
-    localparam RST_MACRO_CFG = 2;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 2 : 4;
   `elsif RST_CFG_SYN_HIGH
-    localparam RST_MACRO_CFG = 3;
+    localparam RST_MACRO_CFG = (RST_CFG==4) ? 3 : 4;
   `endif
 
   `gen_if((RST_CFG==0) || (RST_MACRO_CFG==0)) begin: Dff_AsynNeg
