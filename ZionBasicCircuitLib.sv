@@ -716,7 +716,7 @@ module ZionBasicCircuitLib_Bitmap2Oh
 );
 
   logic [WIDTH_IN-2:0] previousFlg;
-  for(genvar i=1;i<WIDTH_IN-1;i++) 
+  for(genvar i=0;i<WIDTH_IN-1;i++) 
     assign previousFlg[i] = |iDat[i:0];
     assign oDat[0] = iDat[0];
   for(genvar i=1;i<WIDTH_OUT;i++) 
@@ -917,18 +917,24 @@ module ZionBasicCircuitLib_MuxOnehot
   input  logic [WIDTH_IN -1:0] iDat,
   output logic [WIDTH_OUT-1:0] oDat
 );
-
   logic [WIDTH_IN/WIDTH_OUT-1:0][WIDTH_OUT-1:0] datTmp, rsltTmp;
+  logic [WIDTH_SEL-1:0] oDatTmp;
   always_comb begin
     foreach(datTmp[i]) datTmp[i] = iDat [i*WIDTH_OUT+:WIDTH_OUT];
     foreach(rsltTmp[i]) rsltTmp[i] = iSel[i]? datTmp[i] : '0;
-    foreach(oDat[i])    oDat   = |rsltTmp[i];
+      for (int m=0;m<WIDTH_OUT;m++) begin 
+    for(int j=0;j<WIDTH_SEL;j++) begin 
+      oDatTmp[j] = rsltTmp[j][m];
+    end
+      oDat[m] = |oDatTmp;
+    end 
   end
+
   // parameter check.
   initial begin
     if(WIDTH_OUT*WIDTH_SEL != WIDTH_IN) begin
       $error("Parameter Error: MuxBin data width mismatch. The width of input data is equal to WIDTH_OUT * WIDTH_SEL !!");
-      $display("",);
+      $display("WIDTH_OUT=%0d,WIDTH_SEL=%0d,WIDTH_IN=%0d",WIDTH_OUT,WIDTH_SEL,WIDTH_IN);
       `ifdef CHECK_ERR_EXIT
         $finish;
       `endif
@@ -960,7 +966,7 @@ endmodule: ZionBasicCircuitLib_MuxOnehot
 `ifdef ZionBasicCircuitLib_MultiTypeShift
   `__DefErr__(ZionBasicCircuitLib_MultiTypeShift)
 `else
-  `define ZionBasicCircuitLib_MultiTypeShift(UnitName,iSftR_MT,iSftA_MT,iSftL_MT,iDat_MT,iSftBit_MT,oDat_MT) \
+  `define ZionBasicCircuitLib_MultiTypeShift(UnitName,iSftR_MT,iSftA_MT,iSftL_MT,iSftC_MT,iDat_MT,iSftBit_MT,oDat_MT) \
 ZionBasicCircuitLib_MultiTypeShift  #(.INPUT_DATA_WIDTH($bits(iDat_MT)),              \
                                       .SHIFT_BIT_WIDTH($bits(iSftBit_MT)),            \
                                       .OUTPUT_DATA_WIDTH($bits(oDat_MT)))             \
@@ -968,37 +974,45 @@ ZionBasicCircuitLib_MultiTypeShift  #(.INPUT_DATA_WIDTH($bits(iDat_MT)),        
                                       .iSftR(iSftR_MT),                               \
                                       .iSftA(iSftA_MT),                               \
                                       .iSftL(iSftL_MT),                               \
+                                      .iSftC(iSftC_MT),                               \
                                       .iDat(iDat_MT),                                 \
                                       .iSftBit(iSftBit_MT),                           \
                                       .oDat(oDat_MT)                                  \
                                 );
 `endif
 module ZionBasicCircuitLib_MultiTypeShift
-#(INPUT_DATA_WIDTH  = 32,
-  SHIFT_BIT_WIDTH   = 5 ,
-  OUTPUT_DATA_WIDTH = 32
+#(INPUT_DATA_WIDTH  = "_",
+  SHIFT_BIT_WIDTH   = "_",
+  OUTPUT_DATA_WIDTH = "_"
 )(
   input                                iSftR  ,
   input                                iSftA  ,
   input                                iSftL  ,
-  //input                                iSftR  ,
+  input                                iSftC  ,
   input        [INPUT_DATA_WIDTH -1:0] iDat   ,
   input        [SHIFT_BIT_WIDTH  -1:0] iSftBit,
   output logic [OUTPUT_DATA_WIDTH-1:0] oDat
 );
 
-  logic [INPUT_DATA_WIDTH  -1:0] datReverse, sftDat, highBits;
+  logic [INPUT_DATA_WIDTH  -1:0] datReverse, sftDat, highBits,lowBits;
   logic [INPUT_DATA_WIDTH*2-1:0] jointDat,sftRsltTmp, rsltReverse;
   always_comb begin
     datReverse  = {<<{iDat}};//reverse
     sftDat      =  ({INPUT_DATA_WIDTH{iSftR}} & iDat)
                   |({INPUT_DATA_WIDTH{iSftL}} & datReverse); 
     highBits    = {INPUT_DATA_WIDTH{iSftA & sftDat[$high(sftDat)]}};
-    jointDat    = (iSftR)? {highBits,sftDat} :{sftDat,sftDat} ;
+    lowBits     = {INPUT_DATA_WIDTH{iSftA & sftDat[$low(sftDat)]}};//add
+    jointDat    = (iSftR & ~iSftC)? {highBits,sftDat} :
+                  (iSftR &  iSftC)? {sftDat,sftDat}   :
+                  (iSftL &  iSftC)? {sftDat,sftDat}  :
+                  (iSftL &  iSftA)? {sftDat,datReverse}  :{sftDat,sftDat};
     sftRsltTmp  = (jointDat >> iSftBit);//INPUT_DATA_WIDTH*2'
     rsltReverse = {<<{sftRsltTmp}};
     oDat        =  ({INPUT_DATA_WIDTH{iSftR}} & sftRsltTmp) 
-                  |({INPUT_DATA_WIDTH{iSftL}} & rsltReverse);
+                  |({INPUT_DATA_WIDTH{iSftL & ~iSftA & ~iSftC}} & rsltReverse)
+                  |({INPUT_DATA_WIDTH{iSftL &  iSftA}} & rsltReverse[INPUT_DATA_WIDTH*2-1:INPUT_DATA_WIDTH])
+                  |({INPUT_DATA_WIDTH{iSftL &  iSftC}} & rsltReverse[INPUT_DATA_WIDTH/2*3-:INPUT_DATA_WIDTH]);
+                  
   end
 
   // parameter check.
@@ -1095,13 +1109,16 @@ endmodule : ZionBasicCircuitLib_OpppsateNum
 //section: Memory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  In this section, many kinds of Memory instruction are provided.
 //  Name meaning:
-//    BitMaskGen - Generate mask of a number
-//    Read       - Read operations under combinatorial logic
-//    Write      - Write operations under sequential logic
+//    BitMaskGen   - Generate mask of a number
+//    BitRead      - Read operations under combinatorial logic
+//    BitWrite     - Write operations under sequential logic
+//    DatRead      - Read data
+//    WriteDatExtd - Write data
+//    WriteMaskExtd- Generate write mask
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Module name : ZionBasicCircuitLib_BitMaskGen
-// Author      : Wenheng Ma
+// Author      : Wenheng Ma 
 // Date        : 2019-10-28
 // Version     : 2.0
 // Parameter   :
@@ -1312,5 +1329,289 @@ module ZionBasicCircuitLib_BitWrite
   end
 
 endmodule : ZionBasicCircuitLib_BitWrite
+`endif
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name      : ZionBasicCircuitLib_DatRead
+// Author           : Wenheng Ma
+// Date             : 2019-11-03
+// Version          : 1.0
+// Parameter        :
+//   WIDTH_TYPE_NUM - number of width type
+//   WIDTH_ADDR     - width of input  addr
+//   WIDTH_DATA_IN  - width of input  data
+//   WIDTH_DATA_OUT - width of output data
+// Description      :
+//   Read data
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-03 | Wenheng Ma |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_DatRead
+`ifdef ZionBasicCircuitLib_DatRead
+  `__DefErr__(ZionBasicCircuitLib_DatRead)
+`else
+  `define ZionBasicCircuitLib_DatRead(UnitName,iSignedRd_MT,iEn_MT,iAddr_MT,iDat_MT,oDat_MT,MULTI_DATA_WIDTH_MT={0},ADDR_TYPE_MT=0) \
+ZionBasicCircuitLib_DatRead #(.WIDTH_TYPE_NUM($bits(iEn_MT)),           \
+                                .WIDTH_ADDR($bits(iAddr_MT)),           \
+                                .WIDTH_DATA_IN($bits(iDat_MT)),         \
+                                .WIDTH_DATA_OUT($bits(oDat_MT)),        \
+                                .MULTI_DATA_WIDTH(MULTI_DATA_WIDTH_MT), \
+                                .ADDR_TYPE(ADDR_TYPE_MT))               \
+                              UnitName(                                 \
+                                .iSignedRd(iSignedRd_MT),                \
+                                .iEn(iEn_MT),                           \
+                                .iAddr(iAddr_MT),                       \
+                                .iDat(iDat_MT),                         \
+                                .oDat(oDat_MT)                          \
+                              )
+
+`endif
+
+module ZionBasicCircuitLib_DatRead
+#(int WIDTH_TYPE_NUM   = "_", //$bits(iEn)  // number of width type
+  int    WIDTH_ADDR       = "_", //$bits(iAddr)// width of input  addr
+  int    WIDTH_DATA_IN    = "_", //$bits(iDat) // width of input  data
+  int    WIDTH_DATA_OUT   = "_", //$bits(oDat) // width of output data
+  int    MULTI_DATA_WIDTH[WIDTH_TYPE_NUM] = {0,0,0},
+  int    ADDR_TYPE        = 0
+)(
+  input                             iSignedRd,
+  input        [WIDTH_TYPE_NUM-1:0] iEn  ,
+  input        [WIDTH_ADDR    -1:0] iAddr,
+  input        [WIDTH_DATA_IN -1:0] iDat ,
+  output logic [WIDTH_DATA_OUT-1:0] oDat
+);
+
+  logic [WIDTH_TYPE_NUM-1:0][WIDTH_DATA_OUT-1:0] rsltTmp;
+  `gen_if(WIDTH_TYPE_NUM==1) begin :  SingleDatGen
+    logic [WIDTH_DATA_IN/WIDTH_DATA_OUT-1:0][WIDTH_DATA_OUT-1:0] datTmp, readDat;
+    assign datTmp = (iEn[0])? iDat : '0;
+    always_comb begin
+      foreach(readDat[j]) readDat[j] = (iAddr == j)? datTmp[j] : '0;
+    oDat = '0;
+    foreach(readDat[j]) oDat = oDat | readDat[j];
+    end
+  end `gen_else begin : MultiDatGen
+    for(genvar i=0;i<WIDTH_TYPE_NUM;i++) begin : EachDatGen
+      logic [WIDTH_DATA_IN/MULTI_DATA_WIDTH[i]-1:0][MULTI_DATA_WIDTH[i]-1:0] datTmp, readDat;
+      assign datTmp = (iEn[i])? iDat : '0;
+      `gen_if(MULTI_DATA_WIDTH[i]==WIDTH_DATA_OUT) begin : DataGen_FullWidth
+        assign readDat = datTmp;
+      end `gen_else begin : DataGen_NonFullWidth
+        `gen_if(ADDR_TYPE==0) begin : AddrType0_readDatGen
+          always_comb begin
+            foreach(readDat[j]) begin
+              readDat[j] = (iAddr[$high(iAddr)-:$clog2(WIDTH_DATA_IN/MULTI_DATA_WIDTH[i])] == j)? datTmp[j] : '0;
+            end
+          end
+        end `gen_else begin : AddrType1_readDatGen
+          always_comb begin
+            foreach(readDat[j]) readDat[j] = (iAddr == j)? datTmp[j] : '0;
+          end
+        end
+      end
+    always_comb begin
+      rsltTmp[i] = '0;
+      foreach(readDat[j]) rsltTmp[i] = rsltTmp[i] |  {{($bits(oDat)-MULTI_DATA_WIDTH[i]){iSignedRd&readDat[j][MULTI_DATA_WIDTH[i]-1]}},readDat[j]};
+    end
+   end
+    always_comb begin
+    oDat = '0;
+    foreach(rsltTmp[j]) oDat = oDat | rsltTmp[j];
+    end
+  end
+endmodule : ZionBasicCircuitLib_DatRead
+`endif
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name      : ZionBasicCircuitLib_WriteDatExtd
+// Author           : Wenheng Ma
+// Date             : 2019-11-03
+// Version          : 1.0
+// Parameter        :
+//   WIDTH_TYPE_NUM - number of width type
+//   WIDTH_ADDR     - width of input  addr
+//   WIDTH_DATA_IN  - width of input  data
+//   WIDTH_DATA_OUT - width of output data
+// Description      :
+//   Write data
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-03 | Wenheng Ma |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_WriteDatExtd
+`ifdef ZionBasicCircuitLib_WriteDatExtd
+  `__DefErr__(ZionBasicCircuitLib_WriteDatExtd)
+`else
+  `define ZionBasicCircuitLib_WriteDatExtd(UnitName,iEn_MT,iAddr_MT,iDat_MT,oDat_MT,MULTI_DATA_WIDTH_MT={0},ADDR_TYPE_MT=0) \
+ZionBasicCircuitLib_WriteDatExtd  #(.WIDTH_TYPE_NUM($bits(iEn_MT)),       \
+                                  .WIDTH_ADDR($bits(iAddr_MT)),           \
+                                  .WIDTH_DATA_IN($bits(iDat_MT)),         \
+                                  .WIDTH_DATA_OUT($bits(oDat_MT)),        \
+                                  .MULTI_DATA_WIDTH(MULTI_DATA_WIDTH_MT), \
+                                  .ADDR_TYPE(ADDR_TYPE_MT))               \
+                                UnitName(                                 \
+                                  .iEn(iEn_MT),                           \
+                                  .iAddr(iAddr_MT),                       \
+                                  .iDat(iDat_MT),                         \
+                                  .oDat(oDat_MT)                          \
+                                )
+`endif
+
+module ZionBasicCircuitLib_WriteDatExtd
+#(int WIDTH_TYPE_NUM   = "_", //$bits(iEn)  // number of width type
+ int WIDTH_ADDR       = "_", //$bits(iAddr)// width of input  addr
+ int WIDTH_DATA_IN    = "_", //$bits(iDat) // width of input  data
+ int WIDTH_DATA_OUT   = "_", //$bits(oDat) // width of output data
+ int MULTI_DATA_WIDTH[WIDTH_TYPE_NUM] = {0,0,0},
+ int ADDR_TYPE        = 0
+)(
+  input        [WIDTH_TYPE_NUM-1:0] iEn  ,
+  input        [WIDTH_ADDR    -1:0] iAddr,
+  input        [WIDTH_DATA_IN -1:0] iDat ,
+  output logic [WIDTH_DATA_OUT-1:0] oDat
+);
+
+  logic [WIDTH_TYPE_NUM-1:0][WIDTH_DATA_OUT-1:0] rsltTmp;
+
+  `gen_if(WIDTH_TYPE_NUM==1) begin :  SingleDatGen
+    logic [WIDTH_DATA_OUT/WIDTH_DATA_IN-1:0][WIDTH_DATA_IN-1:0] datTmp;
+    wire  [WIDTH_DATA_IN-1:0] wrDat = (iEn[0])? iDat : '0;
+    always_comb begin
+      foreach(datTmp[j]) datTmp[j] = (iAddr == j)? wrDat : '0;
+    end
+    assign oDat = datTmp;
+  end `gen_else begin : MultiDatGen
+    for(genvar i=0;i<WIDTH_TYPE_NUM;i++) begin : EachDatGen
+    //parameter int  slip1=WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i];
+      logic [WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i]-1:0][MULTI_DATA_WIDTH[i]-1:0] datTmp;
+      wire  [MULTI_DATA_WIDTH[i]-1:0] wrDat = (iEn[i])? iDat[MULTI_DATA_WIDTH[i]-1:0] : '0;
+      `gen_if(MULTI_DATA_WIDTH[i]==WIDTH_DATA_OUT) begin : DataGen_FullWidth
+       assign datTmp[0] = wrDat ;
+      end `gen_else begin : DataGen_NonFullWidth
+        `gen_if(ADDR_TYPE==0) begin : AddrType0_datTmpGen
+          always_comb begin
+            foreach(datTmp[j]) begin
+            //parameter int  slip2=WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i];
+              datTmp[j] = (iAddr[$high(iAddr)-:$clog2(WIDTH_DATA_OUT/MULTI_DATA_WIDTH[i])] == j)? wrDat : '0;
+            end
+          end
+        end `gen_else begin : AddrType1_datTmpGen
+          always_comb begin
+            foreach(datTmp[j]) datTmp[j] = (iAddr == j)? wrDat : '0;
+          end
+        end
+      end
+      assign rsltTmp[i] = datTmp;
+    end
+    always_comb begin
+      oDat = '0;
+      foreach(rsltTmp[i]) oDat = rsltTmp[i] | oDat;
+    end
+  end
+endmodule : ZionBasicCircuitLib_WriteDatExtd
+`endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module name      : ZionBasicCircuitLib_WriteMaskExtd
+// Author           : Wenheng Ma
+// Date             : 2019-11-03
+// Version          : 1.0
+// Parameter        :
+//   WIDTH_TYPE_NUM - number of width type
+//   WIDTH_ADDR     - width of input  addr
+//   WIDTH_DATA_OUT - width of output data
+// Description      :
+//   Generate write mask
+// Modification History:
+//    Date    |   Author   |   Version   |   Change Description
+//======================================================================================================================
+// 2019-11-03 | Wenheng Ma |     1.0     |   Original Version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`ifndef Disable_ZionBasicCircuitLib_WriteMaskExtd
+`ifdef ZionBasicCircuitLib_WriteMaskExtd
+  `__DefErr__(ZionBasicCircuitLib_WriteMaskExtd)
+`else
+  `define ZionBasicCircuitLib_WriteMaskExtd(UnitName,iEn_MT,iAddr_MT,oDat_MT,MASK_WIDTH_MT={0},ADDR_TYPE_MT=0,MASK_FLAG_MT=0) \
+ZionBasicCircuitLib_WriteMaskExtd  #(.WIDTH_TYPE_NUM($bits(iEn_MT)),  \
+                                  .WIDTH_ADDR($bits(iAddr_MT)),       \
+                                  .MASK_WIDTH(MASK_WIDTH_MT),         \
+                                  .WIDTH_DATA_OUT($bits(oDat_MT)),    \
+                                  .ADDR_TYPE(ADDR_TYPE_MT),           \
+                                  .MASK_FLAG(MASK_FLAG_MT))           \
+                                UnitName(                             \
+                                  .iEn(iEn_MT),                       \
+                                  .iAddr(iAddr_MT),                   \
+                                  .oDat(oDat_MT)                      \
+                                )
+`endif
+
+module ZionBasicCircuitLib_WriteMaskExtd
+#(int WIDTH_TYPE_NUM = "_", //$bits(iEn)  // number of width type
+  int WIDTH_ADDR     = "_", //$bits(iAddr)// width of input  addr
+  int MASK_WIDTH[WIDTH_TYPE_NUM]    = {0,0,0},
+  int WIDTH_DATA_OUT = "_", //$bits(oDat) // width of output data
+  int ADDR_TYPE      =  0 ,
+  int MASK_FLAG      =  0
+)
+(
+  input        [WIDTH_TYPE_NUM-1:0] iEn  ,
+  input        [WIDTH_ADDR    -1:0] iAddr,
+  output logic [WIDTH_DATA_OUT-1:0] oDat
+);
+
+  logic [WIDTH_TYPE_NUM-1:0][WIDTH_DATA_OUT-1:0] rsltTmp;
+
+  `gen_if(WIDTH_TYPE_NUM==1) begin :  SingleDatGen
+    logic [WIDTH_DATA_OUT/MASK_WIDTH-1:0][MASK_WIDTH-1:0] datTmp;
+    logic [MASK_WIDTH-1:0] maskFlg, unmaskFlg;
+    `gen_if(MASK_FLAG) begin
+      assign maskFlg   = '0;
+      assign unmaskFlg = '1;
+    end `gen_else begin
+      assign maskFlg   = '1;
+      assign unmaskFlg = '0;
+    end
+    wire  [MASK_WIDTH-1:0] wrDat = (iEn[0])? maskFlg : unmaskFlg;
+    always_comb begin
+      foreach(datTmp[j]) datTmp[j] = (iAddr == j)? wrDat : unmaskFlg;
+    end
+    assign oDat = datTmp;
+  end `gen_else begin : MultiDatGen
+    for(genvar i=0;i<WIDTH_TYPE_NUM;i++) begin : EachDatGen
+      logic [WIDTH_DATA_OUT/MASK_WIDTH[i]-1:0][MASK_WIDTH[i]-1:0] datTmp;
+      logic [MASK_WIDTH[i]-1:0] maskFlg, unmaskFlg;
+      `gen_if(MASK_FLAG) begin
+        assign maskFlg   = '0;
+        assign unmaskFlg = '1;
+      end `gen_else begin
+        assign maskFlg   = '1;
+        assign unmaskFlg = '0;
+      end
+      wire  [MASK_WIDTH[i]-1:0] wrDat = (iEn[i])? maskFlg : unmaskFlg;
+      `gen_if(MASK_WIDTH[i]==WIDTH_DATA_OUT) begin : DataGen_FullWidth
+       assign datTmp[0] = wrDat;
+      end `gen_else begin : DataGen_NonFullWidth
+        `gen_if(ADDR_TYPE==0) begin : AddrType0_datTmpGen
+          always_comb begin
+            foreach(datTmp[j]) begin
+              datTmp[j] = (iAddr[$high(iAddr)-:$clog2(WIDTH_DATA_OUT/MASK_WIDTH[i])] == j)? wrDat : unmaskFlg;
+            end
+          end
+        end `gen_else begin : AddrType1_datTmpGen
+          always_comb begin
+            foreach(datTmp[j]) datTmp[j] = (iAddr == j)? wrDat : unmaskFlg;
+          end
+        end
+      end
+      assign rsltTmp[i] = datTmp;
+    end
+    always_comb begin
+    oDat = 0;
+    foreach(rsltTmp[j]) oDat = oDat | rsltTmp[j];
+    end
+  end
+endmodule : ZionBasicCircuitLib_WriteMaskExtd
 `endif
 //endsection: Memory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
